@@ -32,26 +32,8 @@
   @apply z-30;
 }
 
-.cm-editor {
-  .cm-gutters {
-    background: none;
-    border: 0;
-  }
-
-  .cm-lineNumbers {
-    width: 30px;
-  }
-
-  .cm-foldGutter {
-    width: 20px;
-    text-align: center;
-    font-size: 16px;
-  }
-
-  .cm-activeLine,
-  .cm-activeLineGutter {
-    background: none;
-  }
+.monaco-scrollable-element > .scrollbar > .slider {
+  background: theme("colors.neutral.200") !important;
 }
 
 h1 {

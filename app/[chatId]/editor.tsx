@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import CodeMirror from "@uiw/react-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
 import {
   RegisterAiKnowledge,
   RegisterAiTool,
@@ -10,7 +8,7 @@ import {
   useStorage,
 } from "@liveblocks/react";
 import { defineAiTool } from "@liveblocks/client";
-import { EditorView } from "@codemirror/view";
+import MonacoEditor from "@monaco-editor/react";
 
 export function Editor() {
   const code = useStorage((root) => root.code);
@@ -47,35 +45,30 @@ export function Editor() {
             console.log("code", code);
             setCode(code);
           },
-          //   render: ({ args, stage }) => {
-          //     if (stage === "receiving") {
-          //       console.log("Receiving");
-          //       return <div>Start</div>;
-          //     }
-
-          //     if (stage === "executing") {
-          //       console.log("Executing");
-          //       setCode(args.code);
-          //       return <div>Executing</div>;
-          //     }
-
-          //     console.log("Executed");
-          //     return <div>Executed</div>;
-          //   },
         })}
       />
 
-      <CodeMirror
-        className="h-full absolute inset-0"
-        value={code || ""}
-        extensions={[
-          javascript({ jsx: true }),
-          EditorView.editable.of(state === "editable"),
-        ]}
-        onChange={setCode}
-        theme="light"
-        basicSetup={true}
-      />
+      <div className="h-full absolute inset-0">
+        {code == null ? (
+          <div>Loading...</div>
+        ) : (
+          <MonacoEditor
+            value={code || ""}
+            language="javascript"
+            theme="light"
+            options={{
+              readOnly: state !== "editable",
+              fontSize: 13,
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              contextmenu: false,
+            }}
+            onChange={(value) => setCode(value ?? "")}
+          />
+        )}
+      </div>
     </>
   );
 }
+ 
