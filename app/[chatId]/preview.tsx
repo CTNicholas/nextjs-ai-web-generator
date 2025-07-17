@@ -32,6 +32,9 @@ export function Preview() {
       >
         <SandpackPreview
           style={{ height: "100%", width: "100%", borderRadius: 0 }}
+          showNavigator={true}
+          showOpenNewtab={false}
+          showOpenInCodeSandbox={false}
         />
       </SandpackLayout>
     </SandpackProvider>

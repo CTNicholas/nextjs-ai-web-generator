@@ -3,7 +3,6 @@
 import {
   RegisterAiKnowledge,
   RegisterAiTool,
-  useAiChatMessages,
   useMutation,
   useStorage,
 } from "@liveblocks/react";
@@ -15,15 +14,12 @@ import html from "prettier/plugins/html";
 import typescript from "prettier/plugins/typescript";
 import prettier from "prettier/standalone";
 import { Spinner } from "./spinner";
+import { useIsGenerating } from "./utils";
+import { AiTool } from "@liveblocks/react-ui";
 
-export function Editor({ chatId }: { chatId: string }) {
+export function Editor() {
   const code = useStorage((root) => root.code);
-  const { messages } = useAiChatMessages(chatId);
-
-  const lastMessage = messages?.length ? messages[messages.length - 1] : null;
-  const generating = lastMessage
-    ? lastMessage.role === "assistant" && lastMessage.status === "generating"
-    : false;
+  const generating = useIsGenerating();
 
   const setCode = useMutation(({ storage }, newCode) => {
     storage.set("code", newCode);
@@ -40,7 +36,7 @@ export function Editor({ chatId }: { chatId: string }) {
         name="edit-code"
         tool={defineAiTool()({
           description:
-            "Edit the code editor content. You can use React and Tailwind. Always use `export function default App`.",
+            "Edit the code editor content. You can use React and Tailwind. Always use `export function default App`. Always import hooks from react package. Leave a very brief explanation after.",
           parameters: {
             type: "object",
             properties: {
@@ -54,7 +50,19 @@ export function Editor({ chatId }: { chatId: string }) {
           },
           execute: async ({ code }) => {
             setCode(code);
+            return {
+              data: {},
+              description:
+                "You've generated code. Write a very short description.",
+            };
           },
+          render: ({ stage }) => (
+            <AiTool
+              title={
+                stage === "executed" ? "Code generated" : "Generating code…"
+              }
+            />
+          ),
         })}
       />
 

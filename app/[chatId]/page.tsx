@@ -6,9 +6,12 @@ import { Header } from "./header";
 import { Chat } from "./chat";
 import { Preview } from "./preview";
 import { useState } from "react";
+import { useIsGenerating } from "./utils";
+import { SpinnerIcon } from "./spinner";
 
 export default function Page({ params }: { params: { chatId: string } }) {
   const [panel, setPanel] = useState<"preview" | "editor">("preview");
+  const generating = useIsGenerating();
 
   return (
     <Room chatId={params.chatId}>
@@ -41,12 +44,30 @@ export default function Page({ params }: { params: { chatId: string } }) {
             </div>
 
             <div className="grow relative">
-              <div style={{ display: panel === "preview" ? "block" : "none" }}>
+              <div
+                style={{
+                  display: panel === "preview" ? "block" : "none",
+                  opacity: generating ? 0.7 : 1,
+                }}
+              >
                 <Preview />
               </div>
-              <div style={{ display: panel === "editor" ? "block" : "none" }}>
-                <Editor chatId={params.chatId} />
+              <div
+                style={{
+                  display: panel === "editor" ? "block" : "none",
+                  opacity: generating ? 0.7 : 1,
+                }}
+              >
+                <Editor />
               </div>
+              {/* {generating && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-lg">
+                  <div className="text-lg font-bold flex items-center">
+                    <SpinnerIcon className="size-10 opacity-60 -mr-0.5" />{" "}
+                    Generating…
+                  </div>
+                </div>
+              )} */}
             </div>
           </div>
         </main>
