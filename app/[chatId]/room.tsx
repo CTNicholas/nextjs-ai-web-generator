@@ -10,7 +10,10 @@ export function Room({
   chatId: string;
 }) {
   return (
-    <RoomProvider id={chatId} initialStorage={{ code: "" }}>
+    <RoomProvider
+      id={"liveblocks:examples:nextjs-ai-web-generator:" + chatId}
+      initialStorage={{ code: "" }}
+    >
       {children}
     </RoomProvider>
   );
