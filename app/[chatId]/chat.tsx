@@ -2,6 +2,7 @@
 
 import { useSendAiMessage } from "@liveblocks/react";
 import { AiChat, AiChatComponentsEmptyProps } from "@liveblocks/react-ui";
+import { Spinner } from "./spinner";
 
 export function Chat({ chatId }: { chatId: string }) {
   return (
@@ -10,7 +11,7 @@ export function Chat({ chatId }: { chatId: string }) {
       chatId={chatId}
       copilotId={process.env.NEXT_PUBLIC_LIVEBLOCKS_COPILOT_ID || undefined}
       className="grow mx-auto"
-      components={{ Empty }}
+      components={{ Empty, Loading: Spinner }}
       autoFocus
 
       // Chat width is set in globals.css with a variable:
@@ -32,6 +33,7 @@ function Empty({ chatId }: AiChatComponentsEmptyProps) {
         <div className="flex flex-wrap items-start gap-1.5">
           {suggestions.map((suggestion) => (
             <button
+              key={suggestion}
               className="px-2 py-1 transition-colors rounded-md flex items-center gap-2 bg-white border-neutral-200 border text-sm font-medium shadow-xs hover:bg-neutral-50"
               onClick={() => sendMessage(suggestion)}
             >

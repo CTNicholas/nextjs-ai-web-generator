@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import {
   RegisterAiKnowledge,
   RegisterAiTool,
+  useAiChatMessages,
   useMutation,
   useStorage,
 } from "@liveblocks/react";
@@ -14,17 +14,16 @@ import estree from "prettier/plugins/estree";
 import html from "prettier/plugins/html";
 import typescript from "prettier/plugins/typescript";
 import prettier from "prettier/standalone";
+import { Spinner } from "./spinner";
 
-export function formatWithPrettier(code: string) {
-  return prettier.format(code, {
-    parser: "typescript",
-    plugins: [estree, typescript, html],
-  });
-}
-
-export function Editor() {
+export function Editor({ chatId }: { chatId: string }) {
   const code = useStorage((root) => root.code);
-  const [state, setState] = useState<"editable" | "generating">("editable");
+  const { messages } = useAiChatMessages(chatId);
+
+  const lastMessage = messages?.length ? messages[messages.length - 1] : null;
+  const generating = lastMessage
+    ? lastMessage.role === "assistant" && lastMessage.status === "generating"
+    : false;
 
   const setCode = useMutation(({ storage }, newCode) => {
     storage.set("code", newCode);
@@ -41,7 +40,7 @@ export function Editor() {
         name="edit-code"
         tool={defineAiTool()({
           description:
-            "Edit the code editor content. You can use React and Tailwind.",
+            "Edit the code editor content. You can use React and Tailwind. Always use `export function default App`.",
           parameters: {
             type: "object",
             properties: {
@@ -54,27 +53,34 @@ export function Editor() {
             additionalProperties: false,
           },
           execute: async ({ code }) => {
-            console.log("code", code);
             setCode(code);
           },
         })}
       />
 
-      <div className="h-full absolute inset-0">
+      <div
+        className="h-full absolute inset-0 data-[generating]:opacity-70"
+        data-generating={generating || undefined}
+      >
         {code == null ? (
-          <div>Loading...</div>
+          <Spinner />
         ) : (
           <MonacoEditor
             value={code || ""}
             language="javascript"
             theme="light"
             options={{
-              readOnly: state !== "editable",
-              fontSize: 13,
+              readOnly: generating,
+              fontSize: 14,
+              fontFamily: "var(--font-mono), JetBrains Mono, monospace",
               minimap: { enabled: false },
               scrollBeyondLastLine: false,
               automaticLayout: true,
               contextmenu: false,
+              bracketPairColorization: { enabled: false },
+              matchBrackets: "never",
+              selectionHighlight: false,
+              occurrencesHighlight: "off",
             }}
             onChange={(value) => setCode(value ?? "")}
             onMount={handleMonacoMount}
@@ -86,6 +92,20 @@ export function Editor() {
 }
 
 const handleMonacoMount: OnMount = (editor, monaco) => {
+  // Define a custom theme
+  monaco.editor.defineTheme("custom-light", {
+    base: "vs",
+    inherit: true,
+    rules: [],
+    colors: {
+      "editorLineNumber.foreground": "#d0d0d0", // Light gray for all line numbers
+      "editorLineNumber.activeForeground": "#333333", // Darker for the active line number
+    },
+  });
+
+  // Set the custom theme
+  monaco.editor.setTheme("custom-light");
+
   // `cmd/ctrl + s` runs prettier
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, async () => {
     const model = editor.getModel();
@@ -94,7 +114,10 @@ const handleMonacoMount: OnMount = (editor, monaco) => {
     }
 
     const selection = editor.getSelection();
-    const formatted = await formatWithPrettier(model.getValue());
+    const formatted = await prettier.format(model.getValue(), {
+      parser: "typescript",
+      plugins: [estree, typescript, html],
+    });
 
     // Apply edits
     editor.executeEdits("format", [

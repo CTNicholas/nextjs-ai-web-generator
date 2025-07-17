@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Providers } from "./providers";
-import { ChatList } from "./chat-list";
 import { redirect } from "next/navigation";
 import { nanoid } from "nanoid";
 import { ComponentProps } from "react";
 import "./globals.css";
-import Link from "next/link";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Liveblocks",
 };
+
+const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "700"],
+});
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   async function newChat() {
@@ -22,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     redirect(`/${newChatId}`);
   }
   return (
-    <html lang="en">
+    <html lang="en" className={`${sans.variable} ${mono.variable} antialiased`}>
       <head>
         <link
           href="https://liveblocks.io/favicon-32x32.png"
@@ -38,10 +41,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body
-        className={`${inter.className} absolute antialiased inset-0 text-neutral-900 flex justify-center items-center bg-neutral-100/70`}
+        className={`font-sans absolute antialiased inset-0 text-neutral-900 flex justify-center items-center bg-neutral-100/70`}
       >
         <Providers>
-          <div className="flex h-full w-full overflow-hidden">
+          <div className="flex h-full w-full overflow-hidden font-sans">
             {/* <aside className="w-[260px] bg-neutral-100 border-r border-neutral-200 shrink-0 flex flex-col gap-2 py-2">
               <form action={newChat} className="block w-full">
                 <button className="group p-2 text-sm hover:bg-neutral-300/40 rounded-md mx-2 text-left flex items-center gap-2 text-pink-600 font-medium justify-self-stretch">

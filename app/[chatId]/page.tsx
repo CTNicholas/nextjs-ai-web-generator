@@ -41,7 +41,12 @@ export default function Page({ params }: { params: { chatId: string } }) {
             </div>
 
             <div className="grow relative">
-              {panel === "preview" ? <Preview /> : <Editor />}
+              <div style={{ display: panel === "preview" ? "block" : "none" }}>
+                <Preview />
+              </div>
+              <div style={{ display: panel === "editor" ? "block" : "none" }}>
+                <Editor chatId={params.chatId} />
+              </div>
             </div>
           </div>
         </main>
