@@ -1,3 +1,5 @@
+"use client";
+
 import { ClientSideSuspense, useAiChat } from "@liveblocks/react";
 import Link from "next/link";
 import { ErrorBoundary } from "react-error-boundary";

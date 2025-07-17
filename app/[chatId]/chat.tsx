@@ -1,3 +1,5 @@
+"use client";
+
 import { useSendAiMessage } from "@liveblocks/react";
 import { AiChat, AiChatComponentsEmptyProps } from "@liveblocks/react-ui";
 

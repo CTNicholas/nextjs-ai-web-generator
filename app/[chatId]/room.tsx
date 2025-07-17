@@ -1,3 +1,5 @@
+"use client";
+
 import { RoomProvider } from "@liveblocks/react";
 
 export function Room({
@@ -7,5 +9,9 @@ export function Room({
   children: React.ReactNode;
   chatId: string;
 }) {
-  return <RoomProvider id={chatId}>{children}</RoomProvider>;
+  return (
+    <RoomProvider id={chatId} initialStorage={{ code: "" }}>
+      {children}
+    </RoomProvider>
+  );
 }
