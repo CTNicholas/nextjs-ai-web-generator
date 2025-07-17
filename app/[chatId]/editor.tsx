@@ -8,7 +8,19 @@ import {
   useStorage,
 } from "@liveblocks/react";
 import { defineAiTool } from "@liveblocks/client";
-import MonacoEditor from "@monaco-editor/react";
+import MonacoEditor, { type OnMount } from "@monaco-editor/react";
+
+import estree from "prettier/plugins/estree";
+import html from "prettier/plugins/html";
+import typescript from "prettier/plugins/typescript";
+import prettier from "prettier/standalone";
+
+export function formatWithPrettier(code: string) {
+  return prettier.format(code, {
+    parser: "typescript",
+    plugins: [estree, typescript, html],
+  });
+}
 
 export function Editor() {
   const code = useStorage((root) => root.code);
@@ -65,10 +77,37 @@ export function Editor() {
               contextmenu: false,
             }}
             onChange={(value) => setCode(value ?? "")}
+            onMount={handleMonacoMount}
           />
         )}
       </div>
     </>
   );
 }
- 
+
+const handleMonacoMount: OnMount = (editor, monaco) => {
+  // `cmd/ctrl + s` runs prettier
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, async () => {
+    const model = editor.getModel();
+    if (!model) {
+      return;
+    }
+
+    const selection = editor.getSelection();
+    const formatted = await formatWithPrettier(model.getValue());
+
+    // Apply edits
+    editor.executeEdits("format", [
+      {
+        range: model.getFullModelRange(),
+        text: formatted,
+        forceMoveMarkers: true,
+      },
+    ]);
+
+    // Restore cursor location
+    if (selection) {
+      editor.setSelection(selection);
+    }
+  });
+};
