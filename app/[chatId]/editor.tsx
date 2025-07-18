@@ -28,7 +28,7 @@ export function Editor() {
   return (
     <>
       <RegisterAiKnowledge
-        description="The code editor content"
+        description="The code editor content for the current app."
         value={code === null ? "Loading..." : code}
       />
 
@@ -36,7 +36,7 @@ export function Editor() {
         name="edit-code"
         tool={defineAiTool()({
           description:
-            "Edit the code editor content. You can use React and Tailwind. Always use `export function default App`. Always import hooks from react package. Leave a very brief explanation after.",
+            "Edit the code editor content. Use this to build apps and components.",
           parameters: {
             type: "object",
             properties: {
@@ -49,7 +49,7 @@ export function Editor() {
             additionalProperties: false,
           },
           execute: async ({ code }) => {
-            setCode(code);
+            setCode(await prettify(code));
             return {
               data: {},
               description:
@@ -79,7 +79,7 @@ export function Editor() {
             theme="light"
             options={{
               readOnly: generating,
-              fontSize: 14,
+              fontSize: 13,
               fontFamily: "var(--font-mono), JetBrains Mono, monospace",
               minimap: { enabled: false },
               scrollBeyondLastLine: false,
@@ -122,10 +122,7 @@ const handleMonacoMount: OnMount = (editor, monaco) => {
     }
 
     const selection = editor.getSelection();
-    const formatted = await prettier.format(model.getValue(), {
-      parser: "typescript",
-      plugins: [estree, typescript, html],
-    });
+    const formatted = await prettify(model.getValue());
 
     // Apply edits
     editor.executeEdits("format", [
@@ -142,3 +139,10 @@ const handleMonacoMount: OnMount = (editor, monaco) => {
     }
   });
 };
+
+async function prettify(code: string) {
+  return await prettier.format(code, {
+    parser: "typescript",
+    plugins: [estree, typescript, html],
+  });
+}

@@ -17,7 +17,7 @@ export function Preview() {
 
   return (
     <SandpackProvider
-      template="react"
+      template="react-ts"
       files={{ "/App.js": code }}
       options={{
         externalResources: ["https://cdn.tailwindcss.com"],
