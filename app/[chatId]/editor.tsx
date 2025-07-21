@@ -18,8 +18,8 @@ import { useIsGenerating } from "./utils";
 import { AiTool } from "@liveblocks/react-ui";
 
 export function Editor() {
-  const code = useStorage((root) => root.code);
   const generating = useIsGenerating();
+  const code = useStorage((root) => root.code);
 
   const setCode = useMutation(({ storage }, newCode) => {
     storage.set("code", newCode);
@@ -68,7 +68,7 @@ export function Editor() {
 
       <div
         className="h-full absolute inset-0 data-[generating]:opacity-70"
-        data-generating={generating || undefined}
+        // data-generating={generating || undefined}
       >
         {code == null ? (
           <Spinner />

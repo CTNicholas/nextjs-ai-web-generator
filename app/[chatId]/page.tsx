@@ -43,7 +43,7 @@ export default function Page({ params }: { params: { chatId: string } }) {
                   Editor
                 </button>
               </div>
-              {/* {generating ? (
+              {generating ? (
                 <div className="float-right text-neutral-600 text-sm animate-pulse">
                   Generating…
                 </div>
@@ -51,14 +51,14 @@ export default function Page({ params }: { params: { chatId: string } }) {
                 <div className="float-right text-neutral-300 text-sm">
                   Updated
                 </div>
-              )} */}
+              )}
             </div>
 
             <div className="grow relative">
               <div
                 style={{
                   display: panel === "preview" ? "block" : "none",
-                  opacity: generating ? 0.7 : 1,
+                  // opacity: generating ? 0.7 : 1,
                 }}
               >
                 <Preview />
@@ -66,19 +66,19 @@ export default function Page({ params }: { params: { chatId: string } }) {
               <div
                 style={{
                   display: panel === "editor" ? "block" : "none",
-                  opacity: generating ? 0.7 : 1,
+                  // opacity: generating ? 0.7 : 1,
                 }}
               >
                 <Editor />
               </div>
-              {generating && (
+              {/* {generating && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur">
                   <div className="text-lg font-bold flex items-center">
                     <SpinnerIcon className="size-10 opacity-60 -mr-0.5" />{" "}
                     Generating…
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </main>
