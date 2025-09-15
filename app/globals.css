@@ -10,7 +10,7 @@
   --inner-app-width: 36rem;
 }
 
-[data-generating].flash-line {
+[data-generating] .flash-line {
   animation: flash 0.8s ease-in-out;
   transition: background-color 0.8s ease-in-out;
 }
