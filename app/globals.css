@@ -6,30 +6,58 @@
 @import "@liveblocks/react-ui/styles/dark/media-query.css";
 
 :root {
-  --accent: theme("colors.pink.600");
+  --accent: theme("colors.indigo.600");
   --inner-app-width: 36rem;
 }
 
-.lb-root {
-  --lb-ai-chat-container-width: var(--inner-app-width);
-  --lb-accent: var(--accent);
-  --lb-background: theme("colors.white");
-  --lb-foreground: theme("colors.neutral.900");
-  --lb-radius: theme("borderRadius.sm");
-  --lb-spacing: 0.6rem;
-  font-size: 14px;
-}
-
 .lb-ai-chat {
-  --lb-background: theme("colors.white");
+  position: relative;
+  --lb-background: theme("colors.neutral.50");
+  --lb-foreground: theme("colors.neutral.900");
+
+  /* &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    height: 100px;
+    width: 100%;
+    background: red;
+  } */
 }
 
 .lb-ai-chat-composer {
-  @apply shadow-sm ring-neutral-200 ring-1;
+  --lb-radius: 4px;
+  @apply shadow ring-neutral-200 ring-1;
+}
+
+.lb-ai-chat-footer {
+  padding: 0 theme("spacing[2.5]") theme("spacing[2.5]");
+}
+
+.lb-root {
+  font-size: 14px;
+  --lb-accent: var(--accent);
+  --lb-radius: theme("borderRadius.sm");
+  --lb-spacing: 0.6rem;
+  --lb-ai-chat-container-width: var(--inner-app-width);
+  /* --lb-background: theme("colors.white");
+  --lb-foreground: theme("colors.neutral.900"); */
+}
+
+.lb-ai-chat {
+  /* --lb-background: theme("colors.neutral.50"); */
+}
+
+.lb-ai-chat-composer {
+  /* @apply shadow-sm ring-neutral-200 ring-1; */
 }
 
 .lb-portal {
   @apply z-30;
+}
+
+.sp-navigator {
+  margin-bottom: -1px;
 }
 
 .monaco-scrollable-element > .scrollbar > .slider {

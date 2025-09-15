@@ -7,7 +7,7 @@ import { nanoid } from "nanoid";
 
 export function Header({ chatId }: { chatId: string }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between p-2.5 pb-0">
       <ErrorBoundary fallback={<div>Problem loading chat title</div>}>
         <ClientSideSuspense
           fallback={

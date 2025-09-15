@@ -41,7 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body
-        className={`font-sans absolute antialiased inset-0 text-neutral-900 flex justify-center items-center bg-neutral-100/70`}
+        className={`font-sans absolute antialiased inset-0 text-neutral-900 flex justify-center items-center bg-neutral-50`}
       >
         <Providers>
           <div className="flex h-full w-full overflow-hidden font-sans">

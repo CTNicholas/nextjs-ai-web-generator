@@ -15,17 +15,18 @@ export default function Page({ params }: { params: { chatId: string } }) {
 
   return (
     <Room chatId={params.chatId}>
-      <div className="flex flex-col h-full w-full p-2.5 gap-2.5 overflow-hidden">
+      <div className="flex flex-col h-full w-full gap-2.5 overflow-hidden">
         <header>
           <Header chatId={params.chatId} />
         </header>
 
-        <main className="grow flex gap-2.5 min-h-0">
-          <div className="grow-0 w-[380px] shadow rounded-lg overflow-hidden ring-1 ring-neutral-950/5 bg-white">
+        <main className="grow flex  min-h-0">
+          <div className="grow-0 w-[380px] rounded-lg overflow-hidden">
+            {/* <div className="absolute top-0 w-full h-24 bg-gradient-to-b from-white to-transparent"></div> */}
             <Chat chatId={params.chatId} />
           </div>
 
-          <div className="relative grow shadow rounded-lg overflow-hidden ring-1 ring-neutral-950/5 bg-white flex flex-col">
+          <div className="mb-2.5 mr-2.5 relative grow shadow rounded-lg overflow-hidden ring-1 ring-neutral-950/5 bg-white flex flex-col">
             <div className="flex items-center justify-between pr-4 border-b border-neutral-950/5">
               <div className="flex items-center p-2.5 gap-1.5">
                 <button

@@ -11,6 +11,7 @@ export function Chat({ chatId }: { chatId: string }) {
       chatId={chatId}
       copilotId={process.env.NEXT_PUBLIC_LIVEBLOCKS_COPILOT_ID || undefined}
       className="grow mx-auto"
+      layout="inset"
       components={{ Empty, Loading: Spinner }}
       autoFocus
 
