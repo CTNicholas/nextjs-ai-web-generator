@@ -6,8 +6,22 @@
 @import "@liveblocks/react-ui/styles/dark/media-query.css";
 
 :root {
-  --accent: theme("colors.indigo.600");
+  --accent: theme("colors.pink.600");
   --inner-app-width: 36rem;
+}
+
+[data-generating].flash-line {
+  animation: flash 0.8s ease-in-out;
+  transition: background-color 0.8s ease-in-out;
+}
+
+@keyframes flash {
+  from {
+    background-color: theme("colors.pink.100");
+  }
+  to {
+    background-color: transparent;
+  }
 }
 
 .lb-ai-chat {

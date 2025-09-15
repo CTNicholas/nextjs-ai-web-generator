@@ -68,7 +68,7 @@ export function Editor() {
 
       <div
         className="h-full absolute inset-0 data-[generating]:opacity-70"
-        // data-generating={generating || undefined}
+        data-generating={generating || undefined}
       >
         {code == null ? (
           <Spinner />
@@ -113,6 +113,25 @@ const handleMonacoMount: OnMount = (editor, monaco) => {
 
   // Set the custom theme
   monaco.editor.setTheme("custom-light");
+
+  // Flash on line edits
+  editor.onDidChangeModelContent((event) => {
+    const decorations: Parameters<
+      typeof editor.createDecorationsCollection
+    >[number] = event.changes.map((change) => ({
+      range: change.range,
+      options: {
+        isWholeLine: true,
+        className: "flash-line",
+      },
+    }));
+
+    // Create a *temporary* collection for this change batch
+    const coll = editor.createDecorationsCollection(decorations);
+
+    // Clear after 1 second (fades if your CSS transitions)
+    setTimeout(() => coll.clear(), 1000);
+  });
 
   // `cmd/ctrl + s` runs prettier
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, async () => {
