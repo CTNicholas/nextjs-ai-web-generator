@@ -6,17 +6,17 @@
 @import "@liveblocks/react-ui/styles/dark/media-query.css";
 
 :root {
-  --accent: theme("colors.pink.600");
+  --accent: theme("colors.rose.600");
   --inner-app-width: 36rem;
 }
 
 .monaco-editor .generated-line-highlight {
-  background-color: theme("colors.pink.100") !important;
+  background-color: theme("colors.rose.100") !important;
   animation: pulse-highlight 1s ease-in-out infinite;
 }
 
 .monaco-editor .generated-character-highlight {
-  background-color: theme("colors.pink.300") !important;
+  background-color: theme("colors.rose.300") !important;
   color: white !important;
   animation: blink-cursor 1s step-end infinite;
 }
@@ -24,10 +24,10 @@
 @keyframes pulse-highlight {
   0%,
   100% {
-    background-color: theme("colors.pink.100");
+    background-color: theme("colors.rose.100");
   }
   50% {
-    background-color: theme("colors.pink.200");
+    background-color: theme("colors.rose.200");
   }
 }
 
