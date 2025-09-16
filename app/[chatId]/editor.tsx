@@ -30,45 +30,65 @@ export function Editor() {
   }, []);
 
   // Highlight each line as its generated in
-  const highlightGeneratedLine = useCallback((lineNumber: number) => {
-    if (!editorRef.current || lineNumber <= 0) return;
+  const highlightGeneratedLine = useCallback(
+    (lineNumber: number, characterPosition?: number) => {
+      if (!editorRef.current || lineNumber <= 0) return;
 
-    // Clear previous highlight
-    if (highlightDecorationsRef.current) {
-      highlightDecorationsRef.current.clear();
-    }
+      // Clear previous highlight
+      if (highlightDecorationsRef.current) {
+        highlightDecorationsRef.current.clear();
+      }
 
-    const model = editorRef.current.getModel();
-    if (!model) {
-      return;
-    }
+      const model = editorRef.current.getModel();
+      if (!model) {
+        return;
+      }
 
-    const totalLines = model.getLineCount();
-    if (lineNumber > totalLines) {
-      return;
-    }
+      const totalLines = model.getLineCount();
+      if (lineNumber > totalLines) {
+        return;
+      }
 
-    const lineContent = model.getLineContent(lineNumber);
-    const endColumn = lineContent.length + 1;
+      const lineContent = model.getLineContent(lineNumber);
+      const endColumn = lineContent.length + 1;
 
-    const decorations = [
-      {
-        range: {
-          startLineNumber: lineNumber,
-          startColumn: 1,
-          endLineNumber: lineNumber,
-          endColumn: endColumn,
+      const decorations = [
+        {
+          range: {
+            startLineNumber: lineNumber,
+            startColumn: 1,
+            endLineNumber: lineNumber,
+            endColumn: endColumn,
+          },
+          options: {
+            isWholeLine: true,
+            className: "generated-line-highlight",
+          },
         },
-        options: {
-          isWholeLine: true,
-          className: "generated-line-highlight",
-        },
-      },
-    ];
+      ];
 
-    highlightDecorationsRef.current =
-      editorRef.current.createDecorationsCollection(decorations);
-  }, []);
+      // Add character-level highlight if characterPosition is provided
+      if (characterPosition !== undefined && characterPosition > 0) {
+        const charColumn = Math.min(characterPosition + 1, endColumn);
+        decorations.push({
+          range: {
+            startLineNumber: lineNumber,
+            startColumn: charColumn,
+            endLineNumber: lineNumber,
+            endColumn: charColumn + 1,
+          },
+          options: {
+            className: "generated-character-highlight",
+            isWholeLine: false,
+          },
+        });
+      }
+
+      highlightDecorationsRef.current =
+        editorRef.current.createDecorationsCollection(decorations);
+    },
+    []
+  );
 
   const clearHighlight = useCallback(() => {
     if (highlightDecorationsRef.current) {
@@ -122,7 +142,7 @@ export function Editor() {
                 let additionOnLastLine = "";
 
                 // On the last line, fill in characters from previous code
-                if (currentExtraLine.length > lines[lines.length - 1].length) {
+                if (currentExtraLine?.length > lines[lines.length - 1].length) {
                   additionOnLastLine = currentExtraLine.slice(
                     lines[lines.length - 1].length
                   );
@@ -135,9 +155,9 @@ export function Editor() {
 
                 setCode(mergedLines);
 
-                // Highlight the current generated line
+                // Highlight the current generated line and character
                 currentGeneratedLineRef.current = lineCount;
-                highlightGeneratedLine(lineCount);
+                highlightGeneratedLine(lineCount, characterCount);
 
                 // prettify(mergedLines).then((formattedCode) => {
                 //   setCode(formattedCode);

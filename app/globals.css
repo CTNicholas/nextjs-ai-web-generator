@@ -15,6 +15,12 @@
   animation: pulse-highlight 1s ease-in-out infinite;
 }
 
+.monaco-editor .generated-character-highlight {
+  background-color: theme("colors.pink.300") !important;
+  color: white !important;
+  animation: blink-cursor 1s step-end infinite;
+}
+
 @keyframes pulse-highlight {
   0%,
   100% {
@@ -22,6 +28,17 @@
   }
   50% {
     background-color: theme("colors.pink.200");
+  }
+}
+
+@keyframes blink-cursor {
+  0%,
+  50% {
+    background-color: black;
+  }
+  51%,
+  100% {
+    background-color: transparent;
   }
 }
 
