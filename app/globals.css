@@ -10,17 +10,18 @@
   --inner-app-width: 36rem;
 }
 
-[data-generating] .flash-line {
-  animation: flash 0.8s ease-in-out;
-  transition: background-color 0.8s ease-in-out;
+.monaco-editor .generated-line-highlight {
+  background-color: theme("colors.pink.100") !important;
+  animation: pulse-highlight 1s ease-in-out infinite;
 }
 
-@keyframes flash {
-  from {
+@keyframes pulse-highlight {
+  0%,
+  100% {
     background-color: theme("colors.pink.100");
   }
-  to {
-    background-color: transparent;
+  50% {
+    background-color: theme("colors.pink.200");
   }
 }
 

@@ -8,6 +8,7 @@ import {
 } from "@liveblocks/react";
 import { defineAiTool } from "@liveblocks/client";
 import MonacoEditor, { type OnMount } from "@monaco-editor/react";
+import { useRef, useCallback } from "react";
 
 import estree from "prettier/plugins/estree";
 import html from "prettier/plugins/html";
@@ -20,9 +21,66 @@ import { AiTool } from "@liveblocks/react-ui";
 export function Editor() {
   const generating = useIsGenerating();
   const code = useStorage((root) => root.code);
+  const editorRef = useRef<any>(null);
+  const currentGeneratedLineRef = useRef(0);
+  const highlightDecorationsRef = useRef<any>(null);
 
   const setCode = useMutation(({ storage }, newCode) => {
     storage.set("code", newCode);
+  }, []);
+
+  // Highlight each line as its generated in
+  const highlightGeneratedLine = useCallback((lineNumber: number) => {
+    if (!editorRef.current || lineNumber <= 0) return;
+
+    // Clear previous highlight
+    if (highlightDecorationsRef.current) {
+      highlightDecorationsRef.current.clear();
+    }
+
+    const model = editorRef.current.getModel();
+    if (!model) {
+      return;
+    }
+
+    const totalLines = model.getLineCount();
+    if (lineNumber > totalLines) {
+      return;
+    }
+
+    const lineContent = model.getLineContent(lineNumber);
+    const endColumn = lineContent.length + 1;
+
+    const decorations = [
+      {
+        range: {
+          startLineNumber: lineNumber,
+          startColumn: 1,
+          endLineNumber: lineNumber,
+          endColumn: endColumn,
+        },
+        options: {
+          isWholeLine: true,
+          className: "generated-line-highlight",
+        },
+      },
+    ];
+
+    highlightDecorationsRef.current =
+      editorRef.current.createDecorationsCollection(decorations);
+  }, []);
+
+  const clearHighlight = useCallback(() => {
+    if (highlightDecorationsRef.current) {
+      highlightDecorationsRef.current.clear();
+      highlightDecorationsRef.current = null;
+    }
+    currentGeneratedLineRef.current = 0;
+  }, []);
+
+  const handleMonacoMount = useCallback((editor: any, monaco: any) => {
+    editorRef.current = editor;
+    onMonacoMount(editor, monaco);
   }, []);
 
   return (
@@ -59,18 +117,28 @@ export function Editor() {
                   partialArgs.code +
                   (extraLines.length ? "\n" + extraLines.join("\n") : "");
 
-                prettify(mergedLines).then((formattedCode) => {
-                  setCode(formattedCode);
-                });
+                setCode(mergedLines);
+
+                // Highlight the current generated line
+                currentGeneratedLineRef.current = lineCount;
+                highlightGeneratedLine(lineCount);
+
+                // prettify(mergedLines).then((formattedCode) => {
+                //   setCode(formattedCode);
+                // });
               }
               return <AiTool title="Generating code…" />;
             }
 
             if (stage === "executing") {
-              // Format and only show finished string
-              prettify(args.code).then((formattedCode) => {
-                setCode(formattedCode);
-              });
+              setCode(args.code);
+
+              // Clear highlight when generation is complete
+              clearHighlight();
+
+              // prettify(args.code).then((formattedCode) => {
+              //   setCode(formattedCode);
+              // });
               return <AiTool title="Generating code…" />;
             }
 
@@ -79,6 +147,10 @@ export function Editor() {
               description:
                 "You've generated code. Write a very short description.",
             });
+
+            // Clear highlight when fully done
+            clearHighlight();
+
             return <AiTool title={"Code generated"} />;
           },
         })}
@@ -93,7 +165,7 @@ export function Editor() {
         ) : (
           <MonacoEditor
             value={code || ""}
-            language="javascript"
+            language={generating ? "plaintext" : "javascript"}
             theme="light"
             options={{
               readOnly: generating,
@@ -117,7 +189,7 @@ export function Editor() {
   );
 }
 
-const handleMonacoMount: OnMount = (editor, monaco) => {
+const onMonacoMount = (editor: any, monaco: any) => {
   // Define a custom theme
   monaco.editor.defineTheme("custom-light", {
     base: "vs",
@@ -131,25 +203,6 @@ const handleMonacoMount: OnMount = (editor, monaco) => {
 
   // Set the custom theme
   monaco.editor.setTheme("custom-light");
-
-  // Flash on line edits
-  editor.onDidChangeModelContent((event) => {
-    const decorations: Parameters<
-      typeof editor.createDecorationsCollection
-    >[number] = event.changes.map((change) => ({
-      range: change.range,
-      options: {
-        isWholeLine: true,
-        className: "flash-line",
-      },
-    }));
-
-    // Create a *temporary* collection for this change batch
-    const coll = editor.createDecorationsCollection(decorations);
-
-    // Clear after 1 second (fades if your CSS transitions)
-    setTimeout(() => coll.clear(), 1000);
-  });
 
   // `cmd/ctrl + s` runs prettier
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, async () => {
