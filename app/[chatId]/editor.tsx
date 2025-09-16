@@ -111,10 +111,26 @@ export function Editor() {
             if (stage === "receiving") {
               if (typeof partialArgs.code === "string" && code) {
                 // Merge this string with the current code as it streams in
-                const lineCount = partialArgs.code.split("\n").length;
-                const extraLines = code.split("\n").slice(lineCount);
+                const lines = partialArgs.code.split("\n");
+                const lineCount = lines.length;
+                const characterCount = lines[lines.length - 1].length;
+
+                const [currentExtraLine, ...extraLines] = code
+                  .split("\n")
+                  .slice(lineCount - 1);
+
+                let additionOnLastLine = "";
+
+                // On the last line, fill in characters from previous code
+                if (currentExtraLine.length > lines[lines.length - 1].length) {
+                  additionOnLastLine = currentExtraLine.slice(
+                    lines[lines.length - 1].length
+                  );
+                }
+
                 const mergedLines =
                   partialArgs.code +
+                  additionOnLastLine +
                   (extraLines.length ? "\n" + extraLines.join("\n") : "");
 
                 setCode(mergedLines);
