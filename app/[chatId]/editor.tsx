@@ -8,18 +8,20 @@ import {
 } from "@liveblocks/react";
 import { defineAiTool } from "@liveblocks/client";
 import MonacoEditor, { type OnMount } from "@monaco-editor/react";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, ComponentProps } from "react";
 
 import estree from "prettier/plugins/estree";
 import html from "prettier/plugins/html";
 import typescript from "prettier/plugins/typescript";
 import prettier from "prettier/standalone";
 import { Spinner } from "./spinner";
-import { useIsGenerating } from "./utils";
 import { AiTool } from "@liveblocks/react-ui";
+import { useAiChatStatus } from "@liveblocks/react";
 
-export function Editor() {
-  const generating = useIsGenerating();
+export function Editor({ chatId }: { chatId: string }) {
+  const { status, toolName } = useAiChatStatus(chatId);
+  const isGeneratingCode = status === "generating" && toolName === "edit-code";
+
   const code = useStorage((root) => root.code);
   const editorRef = useRef<any>(null);
   const currentGeneratedLineRef = useRef(0);
@@ -118,12 +120,17 @@ export function Editor() {
           parameters: {
             type: "object",
             properties: {
+              description: {
+                type: "string",
+                description:
+                  "A 1-3 word description of what you're generating. IMPORTANT: THREE WORDS MAXIMUM. Examples: 'dashboard', 'counter', 'login page' ",
+              },
               code: {
                 type: "string",
                 description: "The full code in the editor",
               },
             },
-            required: ["code"],
+            required: ["description", "code"],
             additionalProperties: false,
           },
           execute: () => {},
@@ -158,12 +165,14 @@ export function Editor() {
                 // Highlight the current generated line and character
                 currentGeneratedLineRef.current = lineCount;
                 highlightGeneratedLine(lineCount, characterCount);
-
-                // prettify(mergedLines).then((formattedCode) => {
-                //   setCode(formattedCode);
-                // });
               }
-              return <AiTool title="Generating code…" />;
+              return (
+                <AiTool
+                  title={`Generating your ${partialArgs?.description || "code"}…`}
+                  icon={<GeneratingIcon />}
+                  variant="minimal"
+                />
+              );
             }
 
             if (stage === "executing") {
@@ -171,11 +180,13 @@ export function Editor() {
 
               // Clear highlight when generation is complete
               clearHighlight();
-
-              // prettify(args.code).then((formattedCode) => {
-              //   setCode(formattedCode);
-              // });
-              return <AiTool title="Generating code…" />;
+              return (
+                <AiTool
+                  title={`Generating your ${args.description}…`}
+                  icon={<GeneratingIcon />}
+                  variant="minimal"
+                />
+              );
             }
 
             respond({
@@ -187,24 +198,30 @@ export function Editor() {
             // Clear highlight when fully done
             clearHighlight();
 
-            return <AiTool title={"Code generated"} />;
+            return (
+              <AiTool
+                title={`${args.description.charAt(0).toUpperCase() + args.description.slice(1)} generated.`}
+                icon={<GeneratingIcon />}
+                variant="minimal"
+              />
+            );
           },
         })}
       />
 
       <div
-        className="h-full absolute inset-0 data-[generating]:opacity-70"
-        data-generating={generating || undefined}
+        className="h-full absolute inset-0 data-[generating]:cursor-not-allowed"
+        data-generating={isGeneratingCode || undefined}
       >
         {code == null ? (
           <Spinner />
         ) : (
           <MonacoEditor
             value={code || ""}
-            language={generating ? "plaintext" : "javascript"}
+            language={"javascript"}
             theme="light"
             options={{
-              readOnly: generating,
+              readOnly: isGeneratingCode,
               fontSize: 13,
               fontFamily: "var(--font-mono), JetBrains Mono, monospace",
               minimap: { enabled: false },
@@ -276,4 +293,22 @@ async function prettify(code: string) {
       console.error(error);
       return code;
     });
+}
+
+function GeneratingIcon(props: ComponentProps<"svg">) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      className="size-4"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        d="M5 4a.75.75 0 01.738.616l.252 1.388A1.25 1.25 0 006.996 7.01l1.388.252a.75.75 0 010 1.476l-1.388.252A1.25 1.25 0 005.99 9.996l-.252 1.388a.75.75 0 01-1.476 0L4.01 9.996A1.25 1.25 0 003.004 8.99l-1.388-.252a.75.75 0 010-1.476l1.388-.252A1.25 1.25 0 004.01 6.004l.252-1.388A.75.75 0 015 4zm7-3a.75.75 0 01.721.544l.195.682c.118.415.443.74.858.858l.682.195a.75.75 0 010 1.442l-.682.195a1.25 1.25 0 00-.858.858l-.195.682a.75.75 0 01-1.442 0l-.195-.682a1.25 1.25 0 00-.858-.858l-.682-.195a.75.75 0 010-1.442l.682-.195a1.25 1.25 0 00.858-.858l.195-.682A.75.75 0 0112 1zm-2 10a.75.75 0 01.728.568.968.968 0 00.704.704.75.75 0 010 1.456.968.968 0 00-.704.704.75.75 0 01-1.456 0 .968.968 0 00-.704-.704.75.75 0 010-1.456.968.968 0 00.704-.704A.75.75 0 0110 11z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
 }

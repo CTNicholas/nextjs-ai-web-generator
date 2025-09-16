@@ -5,11 +5,13 @@ import {
   SandpackPreview,
   SandpackProvider,
 } from "@codesandbox/sandpack-react";
-import { useStorage } from "@liveblocks/react";
+import { useStorage, useAiChatStatus } from "@liveblocks/react";
 import { Spinner } from "./spinner";
 
-export function Preview() {
+export function Preview({ chatId }: { chatId: string }) {
   const code = useStorage((root) => root.code);
+  const { status, toolName } = useAiChatStatus(chatId);
+  const generatingCode = status === "generating" && toolName === "edit-code";
 
   if (code === null) {
     return <Spinner />;
@@ -21,6 +23,9 @@ export function Preview() {
       files={{ "/App.js": code }}
       options={{
         externalResources: ["https://cdn.tailwindcss.com"],
+        // autoReload: generatingCode ? false : true,
+        recompileMode: generatingCode ? "delayed" : "immediate",
+        // recompileDelay: 15000,
       }}
       style={{
         position: "absolute",

@@ -6,12 +6,11 @@ import { Header } from "./header";
 import { Chat } from "./chat";
 import { Preview } from "./preview";
 import { useState } from "react";
-import { useIsGenerating } from "./utils";
-import { SpinnerIcon } from "./spinner";
+import { useAiChatStatus } from "@liveblocks/react";
 
 export default function Page({ params }: { params: { chatId: string } }) {
   const [panel, setPanel] = useState<"preview" | "editor">("preview");
-  const generating = useIsGenerating();
+  const { status, toolName } = useAiChatStatus(params.chatId);
 
   return (
     <Room chatId={params.chatId}>
@@ -44,13 +43,13 @@ export default function Page({ params }: { params: { chatId: string } }) {
                   Editor
                 </button>
               </div>
-              {generating ? (
+              {status === "generating" && toolName === "edit-code" ? (
                 <div className="float-right text-neutral-600 text-sm animate-pulse">
                   Generating…
                 </div>
               ) : (
                 <div className="float-right text-neutral-300 text-sm">
-                  Updated
+                  Completed
                 </div>
               )}
             </div>
@@ -62,7 +61,15 @@ export default function Page({ params }: { params: { chatId: string } }) {
                   // opacity: generating ? 0.7 : 1,
                 }}
               >
-                <Preview />
+                <Preview chatId={params.chatId} />
+                {/* {status === "generating" && toolName === "edit-code" && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur">
+                    <div className="text-lg font-bold flex items-center">
+                      <SpinnerIcon className="size-10 opacity-60 -mr-0.5" />{" "}
+                      Generating…
+                    </div>
+                  </div>
+                )} */}
               </div>
               <div
                 style={{
@@ -70,16 +77,8 @@ export default function Page({ params }: { params: { chatId: string } }) {
                   // opacity: generating ? 0.7 : 1,
                 }}
               >
-                <Editor />
+                <Editor chatId={params.chatId} />
               </div>
-              {/* {generating && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur">
-                  <div className="text-lg font-bold flex items-center">
-                    <SpinnerIcon className="size-10 opacity-60 -mr-0.5" />{" "}
-                    Generating…
-                  </div>
-                </div>
-              )} */}
             </div>
           </div>
         </main>

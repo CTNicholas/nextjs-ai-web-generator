@@ -11,7 +11,7 @@
 }
 
 .monaco-editor .generated-line-highlight {
-  background-color: theme("colors.rose.100") !important;
+  background-color: theme("colors.rose.50") !important;
   animation: pulse-highlight 1s ease-in-out infinite;
 }
 
