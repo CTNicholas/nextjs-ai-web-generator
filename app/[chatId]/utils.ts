@@ -6,8 +6,6 @@ export function useIsGenerating() {
   const params = useParams<{ chatId: string }>();
   const { messages } = useAiChatMessages(params.chatId);
 
-  console.log(messages);
-
   const lastMessage = messages?.length ? messages[messages.length - 1] : null;
   const generatingToolResponse =
     lastMessage?.role === "assistant" && lastMessage?.contentSoFar?.length;

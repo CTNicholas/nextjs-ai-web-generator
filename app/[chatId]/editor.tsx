@@ -48,21 +48,39 @@ export function Editor() {
             required: ["code"],
             additionalProperties: false,
           },
-          execute: async ({ code }) => {
-            setCode(await prettify(code));
-            return {
+          execute: () => {},
+          render: ({ stage, partialArgs, args, respond }) => {
+            if (stage === "receiving") {
+              if (typeof partialArgs.code === "string" && code) {
+                // Merge this string with the current code as it streams in
+                const lineCount = partialArgs.code.split("\n").length;
+                const extraLines = code.split("\n").slice(lineCount);
+                const mergedLines =
+                  partialArgs.code +
+                  (extraLines.length ? "\n" + extraLines.join("\n") : "");
+
+                prettify(mergedLines).then((formattedCode) => {
+                  setCode(formattedCode);
+                });
+              }
+              return <AiTool title="Generating code…" />;
+            }
+
+            if (stage === "executing") {
+              // Format and only show finished string
+              prettify(args.code).then((formattedCode) => {
+                setCode(formattedCode);
+              });
+              return <AiTool title="Generating code…" />;
+            }
+
+            respond({
               data: {},
               description:
                 "You've generated code. Write a very short description.",
-            };
+            });
+            return <AiTool title={"Code generated"} />;
           },
-          render: ({ stage }) => (
-            <AiTool
-              title={
-                stage === "executed" ? "Code generated" : "Generating code…"
-              }
-            />
-          ),
         })}
       />
 
@@ -160,8 +178,13 @@ const handleMonacoMount: OnMount = (editor, monaco) => {
 };
 
 async function prettify(code: string) {
-  return await prettier.format(code, {
-    parser: "typescript",
-    plugins: [estree, typescript, html],
-  });
+  return await prettier
+    .format(code, {
+      parser: "typescript",
+      plugins: [estree, typescript, html],
+    })
+    .catch((error) => {
+      console.error(error);
+      return code;
+    });
 }
