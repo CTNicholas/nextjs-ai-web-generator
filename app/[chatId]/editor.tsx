@@ -123,7 +123,7 @@ export function Editor({ chatId }: { chatId: string }) {
               description: {
                 type: "string",
                 description:
-                  "A 1-3 word description of what you're generating. IMPORTANT: THREE WORDS MAXIMUM. Examples: 'dashboard', 'counter', 'login page' ",
+                  "A 1-3 word description of what you're generating. IMPORTANT: THREE WORDS MAXIMUM. Examples: 'dashboard', 'counter', 'login page'. It will be placed after 'Generating your '. e.g. 'Generating your dashboard'. Make sure it will fit here. ",
               },
               code: {
                 type: "string",
