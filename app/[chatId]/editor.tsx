@@ -24,7 +24,6 @@ export function Editor({ chatId }: { chatId: string }) {
 
   const code = useStorage((root) => root.code);
   const editorRef = useRef<any>(null);
-  const currentGeneratedLineRef = useRef(0);
   const highlightDecorationsRef = useRef<any>(null);
 
   const setCode = useMutation(({ storage }, newCode) => {
@@ -97,7 +96,6 @@ export function Editor({ chatId }: { chatId: string }) {
       highlightDecorationsRef.current.clear();
       highlightDecorationsRef.current = null;
     }
-    currentGeneratedLineRef.current = 0;
   }, []);
 
   const handleMonacoMount = useCallback((editor: any, monaco: any) => {
@@ -163,7 +161,6 @@ export function Editor({ chatId }: { chatId: string }) {
                 setCode(mergedLines);
 
                 // Highlight the current generated line and character
-                currentGeneratedLineRef.current = lineCount;
                 highlightGeneratedLine(lineCount, characterCount);
               }
               return (
